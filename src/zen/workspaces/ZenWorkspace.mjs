@@ -6,12 +6,12 @@
     static get markup() {
       return `
         <vbox class="zen-workspace-tabs-section zen-current-workspace-indicator" flex="1" context="zenWorkspaceMoreActions">
-          <hbox class="zen-current-workspace-indicator-icon"></hbox>
-          <hbox class="zen-current-workspace-indicator-name" flex="1"></hbox>
-          <toolbarbutton class="toolbarbutton-1 chromeclass-toolbar-additional zen-workspaces-actions" context="zenWorkspaceMoreActions"></toolbarbutton>
+          <hbox class="zen-current-workspace-indicator-icon" />
+          <label class="zen-current-workspace-indicator-name" flex="1" />
+          <toolbarbutton class="toolbarbutton-1 chromeclass-toolbar-additional zen-workspaces-actions" context="zenWorkspaceMoreActions" />
         </vbox>
         <arrowscrollbox orient="vertical" class="workspace-arrowscrollbox">
-          <vbox class="zen-workspace-tabs-section zen-workspace-pinned-tabs-section">
+          <vbox class="zen-workspace-tabs-section zen-workspace-pinned-tabs-section" hide-separator="true">
             <html:div class="pinned-tabs-container-separator"></html:div>
           </vbox>
           <vbox class="zen-workspace-tabs-section zen-workspace-normal-tabs-section">
@@ -67,6 +67,8 @@
 
       this.indicator.querySelector('.zen-current-workspace-indicator-name').onRenameFinished =
         this.onIndicatorRenameFinished.bind(this);
+
+      this.pinnedTabsContainer.scrollbox = this.scrollbox;
 
       this.indicator
         .querySelector('.zen-workspaces-actions')
@@ -142,6 +144,9 @@
 
       this.#updateOverflow();
 
+      this.onGradientCacheChanged = this.#onGradientCacheChanged.bind(this);
+      window.addEventListener('ZenGradientCacheChanged', this.onGradientCacheChanged);
+
       this.dispatchEvent(
         new CustomEvent('ZenWorkspaceAttached', {
           bubbles: true,
@@ -149,6 +154,10 @@
           detail: { workspace: this },
         })
       );
+    }
+
+    disconnectedCallback() {
+      window.removeEventListener('ZenGradientCacheChanged', this.onGradientCacheChanged);
     }
 
     get active() {
@@ -217,6 +226,30 @@
       };
       popup.addEventListener('popuphidden', handlePopupHidden);
       popup.openPopup(event.target, 'after_start');
+    }
+
+    get newTabButton() {
+      return this.querySelector('#tabs-newtab-button');
+    }
+
+    #onGradientCacheChanged() {
+      const { isDarkMode, isExplicitMode, toolbarColor, primaryColor } =
+        gZenThemePicker.getGradientForWorkspace(
+          gZenWorkspaces.getWorkspaceFromId(this.workspaceUuid)
+        );
+      if (isExplicitMode) {
+        this.style.colorScheme = isDarkMode ? 'dark' : 'light';
+      } else {
+        this.style.colorScheme = '';
+      }
+      this.style.setProperty('--toolbox-textcolor', `rgba(${toolbarColor.join(',')})`);
+      this.style.setProperty('--zen-primary-color', primaryColor);
+    }
+
+    clearThemeStyles() {
+      this.style.colorScheme = '';
+      this.style.removeProperty('--toolbox-textcolor');
+      this.style.removeProperty('--zen-primary-color');
     }
   }
 

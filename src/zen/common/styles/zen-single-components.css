@@ -50,8 +50,31 @@ body > #confetti {
   #PanelUI-zen-emojis-picker-header {
     gap: 10px;
     align-items: center;
-    padding: 10px;
-    padding-bottom: 5px;
+    padding: 0px 10px;
+    padding-bottom: 6px;
+  }
+
+  #PanelUI-zen-emojis-picker-pages {
+    overflow: hidden;
+    max-height: 230px;
+
+    & > * {
+      min-width: 100%;
+    }
+  }
+
+  &[only-svg-icons='true'] {
+    & #PanelUI-zen-emojis-picker-change-emojis {
+      display: none;
+    }
+
+    & #PanelUI-zen-emojis-picker-change-svg {
+      pointer-events: none;
+    }
+
+    & #PanelUI-zen-emojis-picker-pages > vbox[emojis='true'] {
+      display: none;
+    }
   }
 
   #PanelUI-zen-emojis-picker-none label {
@@ -63,11 +86,40 @@ body > #confetti {
     width: 100%;
   }
 
-  #PanelUI-zen-emojis-picker-list {
-    flex-wrap: wrap;
-    max-height: 265px;
+  #PanelUI-zen-picker-header {
+    padding: 6px 16px;
+    justify-content: space-between;
+
+    & > toolbarbutton:first-of-type {
+      pointer-events: none;
+    }
+
+    & #PanelUI-zen-emojis-buttons-wrapper {
+      gap: 4px;
+
+      & toolbarbutton {
+        appearance: none;
+        font-size: small;
+        padding: 0 6px;
+        border-radius: 4px;
+        font-weight: 600;
+
+        &:hover {
+          background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+        }
+
+        &.selected {
+          background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+        }
+      }
+    }
+  }
+
+  #PanelUI-zen-emojis-picker-list,
+  #PanelUI-zen-emojis-picker-svgs {
     overflow-y: auto;
     overflow-x: hidden;
+    width: 100%;
 
     padding: 10px;
     padding-top: 5px;
@@ -77,19 +129,31 @@ body > #confetti {
     grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
 
     .zen-emojis-picker-emoji {
-      appearance: none;
       font-size: 14px;
       padding: 0px !important;
       & image {
         display: none;
       }
     }
+
+    .zen-emojis-picker-svg {
+      padding: 0px !important;
+      & label {
+        display: none;
+      }
+
+      & .toolbarbutton-icon {
+        width: 22px;
+      }
+    }
   }
 
   .zen-emojis-picker-emoji,
+  .zen-emojis-picker-svg,
   #PanelUI-zen-emojis-picker-none {
     width: 22px;
     height: 22px;
+    appearance: none;
 
     &:hover {
       background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
@@ -115,5 +179,68 @@ body > #confetti {
     scale 0.2s;
   &:active {
     transform: scale(0.98);
+  }
+}
+
+/** Update animation */
+
+#zen-update-animation {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.5) 40%,
+    rgba(255, 255, 255, 0.5) 60%,
+    transparent 100%
+  );
+  left: 0;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+#zen-update-animation-border {
+  position: absolute;
+  border-radius: var(--zen-native-content-radius);
+  width: 100%;
+  height: 100%;
+}
+
+#zen-update-animation-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px; /* thickness of border */
+
+  background: radial-gradient(
+    ellipse 100% 50% at center var(--background-top),
+    rgba(255, 255, 255, 0.5) 80%,
+    transparent
+  );
+
+  /* Punch out the inside once (not animated) */
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+/* Status panel */
+
+#statuspanel {
+  padding: 4px 3px;
+
+  & > #statuspanel-label {
+    border-radius: 16px !important;
+    border: 1px solid rgba(225, 225, 225, 0.15) !important;
+    padding: 5px 9px 6px 9px !important;
+    font-weight: 600 !important;
+    background: color-mix(in srgb, var(--zen-primary-color), black 80%) !important;
+    color: #f3f3f3 !important;
+    font-size: smaller !important;
   }
 }
